@@ -139,8 +139,10 @@ This is enforced via the **abstract script contract**: each button file implemen
 | `light` | ✅ | ✅ | ✅ |
 | `switch` | ✅ | ✅ | — |
 | `sensor` | ✅ | ✅ | — (maybe later) |
-| `button` | 🔜 | 🔜 | — |
-| `climate` | 🔜 | 🔜 | 🔜 |
+| `binary_sensor` | ✅ | ✅ | — |
+| `text_sensor` | ✅ | ✅ | — |
+| `button` | ✅ | ✅ | — |
+| `climate` | ✅ | ✅ | ✅ |
 
 ---
 

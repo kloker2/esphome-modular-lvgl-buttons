@@ -51,14 +51,27 @@ packages:
 | `light` | ✅ | ✅ | ✅ | RGB / CCT / brightness, capability auto-detected |
 | `switch` | ✅ | ✅ | — | Works with any toggleable HA entity |
 | `sensor` | ✅ | ✅ | — | Configurable unit and decimal precision |
-| `climate` | planned | planned | planned | — |
-| `button` | planned | planned | — | — |
+| `climate` | ✅ | ✅ | ✅ | Arc setpoint, mode + fan dropdowns, capability flags |
+| `cover` | 🔜 | 🔜 | 🔜 | Blinds, shutters, garage doors |
+| `fan` | 🔜 | 🔜 | 🔜 | — |
+| `button` | ✅ | ✅ | — | Momentary press — works with `script.*`, `scene.*` too |
+| `number` | 🔜 | 🔜 | 🔜 | Setpoints, PID targets |
+| `select` | 🔜 | 🔜 | 🔜 | Operating modes, option lists |
+| `lock` | 🔜 | 🔜 | 🔜 | With PIN pad detail page |
+| `alarm_control_panel` | 🔜 | 🔜 | 🔜 | Arm/disarm with PIN pad |
+| `media_player` | 🔜 | 🔜 | 🔜 | — |
+| `binary_sensor` | ✅ | ✅ | — | Read-only — door, motion, leak |
+| `text_sensor` | ✅ | ✅ | — | Display any string state or attribute |
 
 See each type's `README.md` for full variable reference and usage examples:
 
 - [ui/light/README.md](ui/light/README.md)
 - [ui/switch/README.md](ui/switch/README.md)
 - [ui/sensor/README.md](ui/sensor/README.md)
+- [ui/binary_sensor/README.md](ui/binary_sensor/README.md)
+- [ui/text_sensor/README.md](ui/text_sensor/README.md)
+- [ui/climate/README.md](ui/climate/README.md)
+- [ui/button/README.md](ui/button/README.md)
 
 ---
 
@@ -89,7 +102,8 @@ wifi_password: "your-wifi-password"
 ap_password: "your-fallback-ap-password"
 latitude: 0.0000
 longitude: 0.0000
-ota_encryption_key: "your-base64-key"   # generate with: esphome generate-key
+api_encryption_key: "your-base64-key"   # generate: python3 -c "import secrets,base64; print(base64.b64encode(secrets.token_bytes(32)).decode())"
+ota_password: "your-ota-password"
 ```
 
 ### 4. Create your device config
