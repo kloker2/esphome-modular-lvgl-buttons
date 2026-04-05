@@ -55,6 +55,9 @@ globals:
 - id: ${uid}_swing_mode
   type: int
   initial_value: '0'
+- id: ${uid}_dual_setpoint
+  type: bool
+  initial_value: 'false'
 
 lvgl:
   pages:
@@ -98,7 +101,7 @@ lvgl:
                     char buf[16];
                     snprintf(buf, sizeof(buf), "%.1f°", id(${uid}_target_temp));
                     return std::string(buf);
-              - script.execute: ${uid}_climate_set_target_temp
+              - script.execute: ${uid}_arc_send_temp
 
     # ── MODE STATUS LABEL ─────────────────────────────────────────────────
     - label:
@@ -604,6 +607,13 @@ lvgl:
               - script.execute: ${uid}_climate_set_swing_horizontal
 
 script:
+# ── Debounce arc drag — sends command 500 ms after last on_value ──────────────
+- id: ${uid}_arc_send_temp
+  mode: restart
+  then:
+  - delay: 500ms
+  - script.execute: ${uid}_climate_set_target_temp
+
 # ── Sync all globals → LVGL ───────────────────────────────────────────────────
 - id: ${uid}_sync_state
   then:
@@ -647,6 +657,7 @@ script:
           knob:
             bg_opa: cover
             bg_color: white
+      - lvgl.widget.show: ${uid}_target_label
       - lvgl.label.update:
           id: ${uid}_target_label
           text: !lambda |-
@@ -683,6 +694,7 @@ script:
           knob:
             bg_opa: cover
             bg_color: white
+      - lvgl.widget.show: ${uid}_target_label
       - lvgl.label.update:
           id: ${uid}_target_label
           text: !lambda |-
@@ -717,6 +729,7 @@ script:
           clickable: false
           knob:
             bg_opa: transp
+      - lvgl.widget.show: ${uid}_target_label
       - lvgl.label.update:
           id: ${uid}_target_label
           text: !lambda |-
@@ -751,9 +764,7 @@ script:
           clickable: false
           knob:
             bg_opa: transp
-      - lvgl.label.update:
-          id: ${uid}_target_label
-          text: $mdi_fan
+      - lvgl.widget.hide: ${uid}_target_label
       - lvgl.widget.update:
           id: ${uid}_mode_corner_icon
           text_color: ep_green
@@ -781,9 +792,7 @@ script:
           clickable: false
           knob:
             bg_opa: transp
-      - lvgl.label.update:
-          id: ${uid}_target_label
-          text: $mdi_water_percent
+      - lvgl.widget.hide: ${uid}_target_label
       - lvgl.widget.update:
           id: ${uid}_mode_corner_icon
           text_color: yellow
@@ -811,6 +820,7 @@ script:
           clickable: false
           knob:
             bg_opa: transp
+      - lvgl.widget.show: ${uid}_target_label
       - lvgl.label.update:
           id: ${uid}_target_label
           text: "OFF"

@@ -9,7 +9,7 @@
 #   row:          grid row
 #   column:       grid column
 #   text:         tile label
-#   icon:         icon glyph (default: $mdi_thermostat)
+#   icon:         icon glyph (required — e.g. $mdi_thermostat)
 #   min_temp:     arc minimum × 10  (default: 100 = 10.0°C)
 #   max_temp:     arc maximum × 10  (default: 350 = 35.0°C)
 #   row_span:     (default: 1)
@@ -44,7 +44,7 @@ lvgl:
                 id: icon_${uid}
                 text_font: $icon_font
                 align: top_left
-                text: ${icon | default($mdi_thermostat)}
+                text: ${icon}
             - label:
                 id: label_${uid}
                 align: bottom_left
@@ -107,12 +107,12 @@ text_sensor:
   on_value:
   - if:
       condition:
-        lambda: return !x.empty() && x != "None";
+        lambda: return !x.empty() && x != "None" && !id(${uid}_arc_send_temp)->is_running();
       then:
       - lambda: id(${uid}_target_temp) = atof(x.c_str());
       - script.execute: ${uid}_sync_state
 
-# target_temp_low (heat_cool mode heat setpoint)
+# target_temp_low (heat setpoint — used in heat_cool mode, and fallback for heat mode)
 - platform: homeassistant
   id: ${uid}_ha_target_temp_low
   entity_id: ${entity_id}
@@ -123,10 +123,14 @@ text_sensor:
       condition:
         lambda: return !x.empty() && x != "None";
       then:
-      - lambda: id(${uid}_target_temp_low) = atof(x.c_str());
+      - lambda: |-
+          id(${uid}_dual_setpoint) = true;
+          id(${uid}_target_temp_low) = atof(x.c_str());
+          if (id(${uid}_mode) == 1 && !id(${uid}_arc_send_temp)->is_running())
+            id(${uid}_target_temp) = id(${uid}_target_temp_low);
       - script.execute: ${uid}_sync_state
 
-# target_temp_high (heat_cool mode cool setpoint)
+# target_temp_high (cool setpoint — used in heat_cool mode, and fallback for cool mode)
 - platform: homeassistant
   id: ${uid}_ha_target_temp_high
   entity_id: ${entity_id}
@@ -137,7 +141,11 @@ text_sensor:
       condition:
         lambda: return !x.empty() && x != "None";
       then:
-      - lambda: id(${uid}_target_temp_high) = atof(x.c_str());
+      - lambda: |-
+          id(${uid}_dual_setpoint) = true;
+          id(${uid}_target_temp_high) = atof(x.c_str());
+          if (id(${uid}_mode) == 2 && !id(${uid}_arc_send_temp)->is_running())
+            id(${uid}_target_temp) = id(${uid}_target_temp_high);
       - script.execute: ${uid}_sync_state
 
 # current temperature
@@ -325,11 +333,33 @@ script:
 
 - id: ${uid}_climate_set_target_temp
   then:
-  - homeassistant.action:
-      action: climate.set_temperature
-      data:
-        entity_id: ${entity_id}
-        temperature: !lambda return id(${uid}_target_temp);
+  - if:
+      condition:
+        lambda: return id(${uid}_dual_setpoint) && id(${uid}_mode) == 1;
+      then:
+      - homeassistant.action:
+          action: climate.set_temperature
+          data:
+            entity_id: ${entity_id}
+            target_temp_low: !lambda return id(${uid}_target_temp);
+  - if:
+      condition:
+        lambda: return id(${uid}_dual_setpoint) && id(${uid}_mode) == 2;
+      then:
+      - homeassistant.action:
+          action: climate.set_temperature
+          data:
+            entity_id: ${entity_id}
+            target_temp_high: !lambda return id(${uid}_target_temp);
+  - if:
+      condition:
+        lambda: return !id(${uid}_dual_setpoint);
+      then:
+      - homeassistant.action:
+          action: climate.set_temperature
+          data:
+            entity_id: ${entity_id}
+            temperature: !lambda return id(${uid}_target_temp);
 
 - id: ${uid}_climate_set_fan_auto
   then:

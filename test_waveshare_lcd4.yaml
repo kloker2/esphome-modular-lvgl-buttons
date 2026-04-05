@@ -44,17 +44,17 @@ script:
       // No operation
 
 packages:
-  wifi:           !include esphome-modular-lvgl-buttons/common/wifi.yaml
-  ota_screen:     !include esphome-modular-lvgl-buttons/common/ota.yaml
-  colors:         !include esphome-modular-lvgl-buttons/common/color.yaml
-  fonts:          !include esphome-modular-lvgl-buttons/common/fonts.yaml
-  glyphs:         !include esphome-modular-lvgl-buttons/common/mdi_glyph_substitutions.yaml
-  sensors:        !include esphome-modular-lvgl-buttons/sensors/sensors_base.yaml
-  theme_style:    !include esphome-modular-lvgl-buttons/common/theme_style.yaml
-  backlight:      !include esphome-modular-lvgl-buttons/common/backlight_time.yaml
-  hardware:       !include esphome-modular-lvgl-buttons/hardware/waveshare-esp32-s3-touch-lcd-4-v4.yaml
+  wifi: !include esphome-modular-lvgl-buttons/common/wifi.yaml
+  ota_screen: !include esphome-modular-lvgl-buttons/common/ota.yaml
+  colors: !include esphome-modular-lvgl-buttons/common/color.yaml
+  fonts: !include esphome-modular-lvgl-buttons/common/fonts.yaml
+  glyphs: !include esphome-modular-lvgl-buttons/common/mdi_glyph_substitutions.yaml
+  sensors: !include esphome-modular-lvgl-buttons/sensors/sensors_base.yaml
+  theme_style: !include esphome-modular-lvgl-buttons/common/theme_style.yaml
+  backlight: !include esphome-modular-lvgl-buttons/common/backlight_time.yaml
+  hardware: !include esphome-modular-lvgl-buttons/hardware/waveshare-esp32-s3-touch-lcd-4-v4.yaml
   loading_screen: !include esphome-modular-lvgl-buttons/pages/loading.yaml
-  info_screen:    !include esphome-modular-lvgl-buttons/pages/info.yaml
+  info_screen: !include esphome-modular-lvgl-buttons/pages/info.yaml
 
   # ── Row 0 — Lights ───────────────────────────────────────────────────────────
 
@@ -138,6 +138,16 @@ packages:
       text: "AC"
       icon: $mdi_thermostat
 
+  local_thermo_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/climate/local.yaml
+    vars:
+      uid: local_thermo
+      entity_id: local_thermostat
+      row: 2
+      column: 1
+      text: "Thermostat"
+      icon: $mdi_thermostat
+
 lvgl:
   buffer_size: 100%
   pages:
@@ -168,6 +178,49 @@ switch:
   name: "Test Fan"
   optimistic: true
   restore_mode: RESTORE_DEFAULT_OFF
+
+- platform: template
+  id: heater_relay
+  name: "Heater"
+  optimistic: true
+  restore_mode: RESTORE_DEFAULT_OFF
+
+- platform: template
+  id: cooler_relay
+  name: "Cooler"
+  optimistic: true
+  restore_mode: RESTORE_DEFAULT_OFF
+
+climate:
+- platform: thermostat
+  id: local_thermostat
+  name: "Local Thermostat"
+  sensor: test_temperature
+  min_heating_off_time: 0s
+  min_heating_run_time: 0s
+  min_cooling_off_time: 0s
+  min_cooling_run_time: 0s
+  min_idle_time: 0s
+  heat_action:
+  - switch.turn_on: heater_relay
+  - switch.turn_off: cooler_relay
+  cool_action:
+  - switch.turn_on: cooler_relay
+  - switch.turn_off: heater_relay
+  idle_action:
+  - switch.turn_off: heater_relay
+  - switch.turn_off: cooler_relay
+  default_preset: Home
+  preset:
+  - name: Home
+    default_target_temperature_low: 20.0
+    default_target_temperature_high: 24.0
+  visual:
+    min_temperature: 18
+    max_temperature: 25
+    temperature_step:
+      target_temperature: 0.5
+      current_temperature: 0.1
 
 sensor:
 - platform: template

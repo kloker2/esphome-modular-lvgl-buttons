@@ -1,6 +1,8 @@
 # ui/climate
 
-Thermostat tile with full-screen detail page. Tile shows current temperature and reflects active mode color. Detail page has a large arc for target temperature, mode selector (OFF / HEAT / COOL), and fan speed selector.
+Thermostat tile with full-screen detail page. Tile shows target temperature and reflects active mode color. Detail page has a large arc for target temperature, mode selector, fan speed selector, and swing mode selector.
+
+Supported modes, fan speeds, and swing modes are detected at runtime from HA attributes (remote) or ESPHome climate traits (local) — no vars needed.
 
 ## Files
 
@@ -27,19 +29,6 @@ Thermostat tile with full-screen detail page. Tile shows current temperature and
 ## Usage
 
 ```yaml
-# Local — ESPHome climate component (e.g. pid_climate, bang_bang)
-hvac_tile: !include
-  file: esphome-modular-lvgl-buttons/ui/climate/local.yaml
-  vars:
-    uid: hvac
-    entity_id: living_room_climate   # your climate: component id
-    row: 0
-    column: 0
-    text: "Living Room"
-    icon: $mdi_thermostat
-    min_temp: 150    # 15.0°C
-    max_temp: 300    # 30.0°C
-
 # Remote — Home Assistant climate entity
 ac_tile: !include
   file: esphome-modular-lvgl-buttons/ui/climate/remote.yaml
@@ -50,20 +39,16 @@ ac_tile: !include
     column: 1
     text: "Bedroom"
     icon: $mdi_air_conditioner
-    supports_heat: "false"   # cooling-only unit
 
-# Heat-only thermostat (no fan)
-boiler_tile: !include
-  file: esphome-modular-lvgl-buttons/ui/climate/remote.yaml
+# Local — ESPHome climate component (e.g. pid_climate, bang_bang)
+hvac_tile: !include
+  file: esphome-modular-lvgl-buttons/ui/climate/local.yaml
   vars:
-    uid: boiler
-    entity_id: "climate.boiler"
-    row: 1
+    uid: hvac
+    entity_id: living_room_climate   # your climate: component id
+    row: 0
     column: 0
-    text: "Boiler"
-    icon: $mdi_radiator
-    supports_cool: "false"
-    supports_fan: "false"
+    text: "Living Room"
 ```
 
 ## Required glyphs
@@ -77,17 +62,19 @@ $mdi_arrow_oscillating   $mdi_water_percent
 
 ## Detail page layout
 
-- **Arc** — drag to set target temperature (disabled when OFF)
-- **Mode label** — shows HEATING / COOLING / IDLE
-- **Target temp** — large center label, shows "OFF" when mode is off
+- **Arc** — drag to set target temperature (disabled when OFF / FAN_ONLY / DRY); command sent on finger release only
+- **Target temp label** — large center label; shows `OFF` when mode is off, `low°-high°` in heat_cool mode, hidden in fan_only / dry mode
 - **Current temp** — smaller label below target, in `misty_blue`
-- **Bottom-left button** — opens mode dropdown (OFF / HEAT / COOL)
-- **Bottom-right button** — opens fan dropdown (AUTO / LOW / MED / HIGH), color reflects active fan speed
+- **Mode status label** — shows HEATING / COOLING / IDLE above target temp
+- **Top-left button** — opens swing mode dropdown (hidden if not supported)
 - **Top-right button** — back to parent page
+- **Bottom-left button** — opens mode dropdown (OFF / HEAT / COOL / AUTO / FAN / DRY)
+- **Bottom-right button** — opens fan speed dropdown (AUTO / LOW / MED / HIGH), hidden if not supported
 - **Tap outside dropdown** — dismisses dropdown
 
 ## Notes
 
-- `min_temp` and `max_temp` are arc integer values = °C × 10, giving 0.1° arc resolution.
-- The remote variant reads `temperature` attribute for target temp (single setpoint). For dual-setpoint (heat_cool mode) extend the remote with additional `target_temp_low`/`target_temp_high` sensors as needed.
-- Fan dropdown is hidden entirely if `supports_fan: "false"`.
+- Arc temperature range is fetched at runtime from the climate entity — no `min_temp` / `max_temp` vars needed.
+- Supported modes, fan speeds, and swing modes are detected at runtime. All mode/fan/swing buttons are hidden by default and revealed only if the entity supports them.
+- The remote variant reads `temperature` for single-setpoint and `target_temp_low` / `target_temp_high` for heat_cool mode.
+- The arc sends the temperature command only on finger release, preventing multiple rapid state updates while dragging.

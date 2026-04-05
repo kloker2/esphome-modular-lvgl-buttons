@@ -9,7 +9,7 @@
 #   row:          grid row
 #   column:       grid column
 #   text:         tile label
-#   icon:         icon glyph (default: $mdi_thermostat)
+#   icon:         icon glyph (required — e.g. $mdi_thermostat)
 #   min_temp:     arc minimum × 10  (default: 100 = 10.0°C)
 #   max_temp:     arc maximum × 10  (default: 350 = 35.0°C)
 #   row_span:     (default: 1)
@@ -44,7 +44,7 @@ lvgl:
                 id: icon_${uid}
                 text_font: $icon_font
                 align: top_left
-                text: ${icon | default($mdi_thermostat)}
+                text: ${icon}
             - label:
                 id: label_${uid}
                 align: bottom_left
@@ -71,23 +71,20 @@ esphome:
     then:
     - lambda: |-
         auto show = [](lv_obj_t* obj) { lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN); };
-        auto traits = id(${entity_id}).traits;
+        auto traits = id(${entity_id})->get_traits();
         // HVAC modes
-        auto modes = traits.get_supported_modes();
-        if (modes.count(CLIMATE_MODE_HEAT))      show(id(${uid}_btn_mode_heat));
-        if (modes.count(CLIMATE_MODE_COOL))      show(id(${uid}_btn_mode_cool));
-        if (modes.count(CLIMATE_MODE_HEAT_COOL)) show(id(${uid}_btn_mode_heat_cool));
-        if (modes.count(CLIMATE_MODE_FAN_ONLY))  show(id(${uid}_btn_mode_fan_only));
-        if (modes.count(CLIMATE_MODE_DRY))       show(id(${uid}_btn_mode_dry));
+        if (traits.supports_mode(CLIMATE_MODE_HEAT))      show(id(${uid}_btn_mode_heat));
+        if (traits.supports_mode(CLIMATE_MODE_COOL))      show(id(${uid}_btn_mode_cool));
+        if (traits.supports_mode(CLIMATE_MODE_HEAT_COOL)) show(id(${uid}_btn_mode_heat_cool));
+        if (traits.supports_mode(CLIMATE_MODE_FAN_ONLY))  show(id(${uid}_btn_mode_fan_only));
+        if (traits.supports_mode(CLIMATE_MODE_DRY))       show(id(${uid}_btn_mode_dry));
         // Fan modes
-        auto fan_modes = traits.get_supported_fan_modes();
-        bool has_fan = !fan_modes.empty();
-        if (has_fan) {
+        if (traits.get_supports_fan_modes()) {
           show(id(${uid}_fan_corner_btn));
-          if (fan_modes.count(CLIMATE_FAN_AUTO))   show(id(${uid}_btn_fan_auto));
-          if (fan_modes.count(CLIMATE_FAN_LOW))    show(id(${uid}_btn_fan_low));
-          if (fan_modes.count(CLIMATE_FAN_MEDIUM)) show(id(${uid}_btn_fan_medium));
-          if (fan_modes.count(CLIMATE_FAN_HIGH))   show(id(${uid}_btn_fan_high));
+          if (traits.supports_fan_mode(CLIMATE_FAN_AUTO))   show(id(${uid}_btn_fan_auto));
+          if (traits.supports_fan_mode(CLIMATE_FAN_LOW))    show(id(${uid}_btn_fan_low));
+          if (traits.supports_fan_mode(CLIMATE_FAN_MEDIUM)) show(id(${uid}_btn_fan_medium));
+          if (traits.supports_fan_mode(CLIMATE_FAN_HIGH))   show(id(${uid}_btn_fan_high));
         }
         // Arc temperature range from traits
         int arc_min = (int)(traits.get_visual_min_temperature() * 10);
@@ -96,14 +93,12 @@ esphome:
           lv_arc_set_range(id(${uid}_arc), arc_min, arc_max);
         }
         // Swing modes
-        auto swing_modes = traits.get_supported_swing_modes();
-        bool has_swing = !swing_modes.empty();
-        if (has_swing) {
+        if (traits.get_supports_swing_modes()) {
           show(id(${uid}_swing_corner_btn));
-          if (swing_modes.count(CLIMATE_SWING_OFF))        show(id(${uid}_btn_swing_off));
-          if (swing_modes.count(CLIMATE_SWING_BOTH))       show(id(${uid}_btn_swing_both));
-          if (swing_modes.count(CLIMATE_SWING_VERTICAL))   show(id(${uid}_btn_swing_vertical));
-          if (swing_modes.count(CLIMATE_SWING_HORIZONTAL)) show(id(${uid}_btn_swing_horizontal));
+          if (traits.supports_swing_mode(CLIMATE_SWING_OFF))        show(id(${uid}_btn_swing_off));
+          if (traits.supports_swing_mode(CLIMATE_SWING_BOTH))       show(id(${uid}_btn_swing_both));
+          if (traits.supports_swing_mode(CLIMATE_SWING_VERTICAL))   show(id(${uid}_btn_swing_vertical));
+          if (traits.supports_swing_mode(CLIMATE_SWING_HORIZONTAL)) show(id(${uid}_btn_swing_horizontal));
         }
 
 # ── Sync state on every climate update ───────────────────────────────────────
@@ -129,10 +124,26 @@ climate:
         default:                     id(${uid}_action) = 0; break;
       }
       // Temperatures
-      id(${uid}_current_temp)     = x.current_temperature;
-      id(${uid}_target_temp)      = x.target_temperature;
-      id(${uid}_target_temp_low)  = x.target_temperature_low;
-      id(${uid}_target_temp_high) = x.target_temperature_high;
+      if (!std::isnan(x.current_temperature))
+        id(${uid}_current_temp) = x.current_temperature;
+      if (!std::isnan(x.target_temperature_low))
+        id(${uid}_target_temp_low)  = x.target_temperature_low;
+      if (!std::isnan(x.target_temperature_high))
+        id(${uid}_target_temp_high) = x.target_temperature_high;
+      // Detect dual-setpoint climate (has low/high)
+      if (!std::isnan(x.target_temperature_low) || !std::isnan(x.target_temperature_high))
+        id(${uid}_dual_setpoint) = true;
+      // Route active setpoint into target_temp. Skip while arc debounce is pending.
+      if (!id(${uid}_arc_send_temp)->is_running()) {
+        if (id(${uid}_dual_setpoint)) {
+          if (x.mode == CLIMATE_MODE_HEAT && !std::isnan(x.target_temperature_low))
+            id(${uid}_target_temp) = x.target_temperature_low;
+          else if (x.mode == CLIMATE_MODE_COOL && !std::isnan(x.target_temperature_high))
+            id(${uid}_target_temp) = x.target_temperature_high;
+        } else if (!std::isnan(x.target_temperature)) {
+          id(${uid}_target_temp) = x.target_temperature;
+        }
+      }
       // Fan mode
       if (x.fan_mode.has_value()) {
         switch (x.fan_mode.value()) {
@@ -144,14 +155,12 @@ climate:
         }
       }
       // Swing mode
-      if (x.swing_mode.has_value()) {
-        switch (x.swing_mode.value()) {
-          case CLIMATE_SWING_OFF:        id(${uid}_swing_mode) = 0; break;
-          case CLIMATE_SWING_BOTH:       id(${uid}_swing_mode) = 1; break;
-          case CLIMATE_SWING_VERTICAL:   id(${uid}_swing_mode) = 2; break;
-          case CLIMATE_SWING_HORIZONTAL: id(${uid}_swing_mode) = 3; break;
-          default: break;
-        }
+      switch (x.swing_mode) {
+        case CLIMATE_SWING_OFF:        id(${uid}_swing_mode) = 0; break;
+        case CLIMATE_SWING_BOTH:       id(${uid}_swing_mode) = 1; break;
+        case CLIMATE_SWING_VERTICAL:   id(${uid}_swing_mode) = 2; break;
+        case CLIMATE_SWING_HORIZONTAL: id(${uid}_swing_mode) = 3; break;
+        default: break;
       }
   - script.execute: ${uid}_sync_state
 
@@ -195,9 +204,27 @@ script:
 
 - id: ${uid}_climate_set_target_temp
   then:
-  - climate.control:
-      id: ${entity_id}
-      target_temperature: !lambda return id(${uid}_target_temp);
+  - if:
+      condition:
+        lambda: return id(${uid}_dual_setpoint) && id(${uid}_mode) == 1;
+      then:
+      - climate.control:
+          id: ${entity_id}
+          target_temperature_low: !lambda return id(${uid}_target_temp);
+  - if:
+      condition:
+        lambda: return id(${uid}_dual_setpoint) && id(${uid}_mode) == 2;
+      then:
+      - climate.control:
+          id: ${entity_id}
+          target_temperature_high: !lambda return id(${uid}_target_temp);
+  - if:
+      condition:
+        lambda: return !id(${uid}_dual_setpoint);
+      then:
+      - climate.control:
+          id: ${entity_id}
+          target_temperature: !lambda return id(${uid}_target_temp);
 
 - id: ${uid}_climate_set_fan_auto
   then:
