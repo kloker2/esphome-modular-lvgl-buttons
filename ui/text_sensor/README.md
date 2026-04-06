@@ -1,3 +1,5 @@
+[← Back to main README](../../README.md)
+
 # ui/text_sensor
 
 Read-only tile that displays a live string value. The value updates automatically on every change. No tap action.

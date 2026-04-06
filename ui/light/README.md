@@ -1,3 +1,5 @@
+[← Back to main README](../../README.md)
+
 # ui/light
 
 Full RGB / CCT / brightness tile for a light entity. Short-click toggles on/off. Long-press opens a detail page with brightness slider, hue arc, saturation slider, and color temperature arc.

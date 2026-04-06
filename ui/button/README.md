@@ -1,3 +1,5 @@
+[← Back to main README](../../README.md)
+
 # ui/button
 
 Momentary press tile — fires an action on tap, no state tracking.

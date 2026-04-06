@@ -1,3 +1,5 @@
+[← Back to main README](../../README.md)
+
 # ui/sensor
 
 Read-only tile that displays a live numeric sensor value. No actions, no detail page.

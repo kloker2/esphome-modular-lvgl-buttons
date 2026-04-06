@@ -1,3 +1,5 @@
+[← Back to main README](../../README.md)
+
 # ui/switch
 
 On/off tile for any toggleable entity. Short-click toggles. Tile color reflects current state.

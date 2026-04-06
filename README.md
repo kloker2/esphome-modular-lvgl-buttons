@@ -155,13 +155,13 @@ esphome run my-panel.yaml
 
 | Type | local | remote | Detail page | Notes |
 |---|---|---|---|---|
-| `light` | ✅ | ✅ | ✅ | RGB / CCT / brightness, capability auto-detected |
-| `switch` | ✅ | ✅ | — | Works with any toggleable HA entity |
-| `sensor` | ✅ | ✅ | — | Configurable unit and decimal precision |
-| `binary_sensor` | ✅ | ✅ | — | Read-only — door, motion, leak |
-| `text_sensor` | ✅ | ✅ | — | Display any string state or attribute |
-| `button` | ✅ | ✅ | — | Momentary press — works with `script.*`, `scene.*` too |
-| `climate` | ✅ | ✅ | ✅ | Arc setpoint, mode + fan + swing dropdowns, capability auto-detected |
+| [`light`](ui/light/README.md) | ✅ | ✅ | ✅ | RGB / CCT / brightness, capability auto-detected |
+| [`switch`](ui/switch/README.md) | ✅ | ✅ | — | Works with any toggleable HA entity |
+| [`sensor`](ui/sensor/README.md) | ✅ | ✅ | — | Configurable unit and decimal precision |
+| [`binary_sensor`](ui/binary_sensor/README.md) | ✅ | ✅ | — | Read-only — door, motion, leak |
+| [`text_sensor`](ui/text_sensor/README.md) | ✅ | ✅ | — | Display any string state or attribute |
+| [`button`](ui/button/README.md) | ✅ | ✅ | — | Momentary press — works with `script.*`, `scene.*` too |
+| [`climate`](ui/climate/README.md) | ✅ | ✅ | ✅ | Arc setpoint, mode + fan + swing dropdowns, capability auto-detected |
 | `cover` | 🔜 | 🔜 | 🔜 | Blinds, shutters, garage doors |
 | `fan` | 🔜 | 🔜 | 🔜 | — |
 | `number` | 🔜 | 🔜 | 🔜 | Setpoints, PID targets |
@@ -169,15 +169,7 @@ esphome run my-panel.yaml
 | `media_player` | 🔜 | 🔜 | 🔜 | — |
 | `lock` | 🔜 | 🔜 | 🔜 | With PIN pad detail page |
 
-See each type's `README.md` for full variable reference and usage examples:
-
-- [ui/light/README.md](ui/light/README.md)
-- [ui/switch/README.md](ui/switch/README.md)
-- [ui/sensor/README.md](ui/sensor/README.md)
-- [ui/binary_sensor/README.md](ui/binary_sensor/README.md)
-- [ui/text_sensor/README.md](ui/text_sensor/README.md)
-- [ui/climate/README.md](ui/climate/README.md)
-- [ui/button/README.md](ui/button/README.md)
+Click any type name in the table above for its full variable reference and usage examples.
 
 ---
 

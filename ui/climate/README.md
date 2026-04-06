@@ -1,3 +1,5 @@
+[← Back to main README](../../README.md)
+
 # ui/climate
 
 Thermostat tile with full-screen detail page. Tile shows target temperature and reflects active mode color. Detail page has a large arc for target temperature, mode selector, fan speed selector, and swing mode selector.

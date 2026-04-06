@@ -1,3 +1,5 @@
+[← Back to main README](../../README.md)
+
 # ui/binary_sensor
 
 Read-only indicator tile. Tile color reflects the current on/off state — no tap action.
