@@ -25,13 +25,26 @@ esphome:
   name: "sunton-2432s028"
   friendly_name: "Sunton ESP32-2432s028"
   comment: "Sunton ESP32-2432s028"
-  on_boot:
-    - priority: 400
-      then:
-        - script.execute: update_loading_page
+
+api:
 
 logger:
   level: debug
+
+text_sensor:
+  - platform: template
+    id: device_last_restart
+    name: 'Last Restart'
+    icon: mdi:clock
+    entity_category: diagnostic
+
+  - platform: version
+    id: esphome_version
+    name: 'ESPHome Version'
+    hide_timestamp: true
+    hide_hash: true
+    icon: mdi:source-branch
+    entity_category: diagnostic
 
 # Time update script - This is run once per second. Use it to update any time related labels.
 script:
@@ -46,21 +59,12 @@ script:
           // No operation
 
 packages:
-  # Generic configuration for ESP32 screens
-  # SDL has no Wi-Fi
   wifi: !include esphome-modular-lvgl-buttons/common/wifi.yaml
   # Enable OTA updates with a status screen
   ota_screen: !include esphome-modular-lvgl-buttons/common/ota.yaml
-  # All the colors
-  theme:  !include esphome-modular-lvgl-buttons/common/theme/index.yaml
-  # Some nice basic fonts
-  # 1000s of glyphs
-  # Some basic sensors
-  sensors: !include esphome-modular-lvgl-buttons/common/sensors_base.yaml
-  # Styles + Themes
-  # Use this theme for debugging
-  # theme:  !include esphome-modular-lvgl-buttons/common/theme/index_debug.yaml  # uncomment to enable debug outlines
-  # Include if your touch screen has a backlight. Also sets the time from HA
+  style:  !include esphome-modular-lvgl-buttons/common/theme/theme_style.yaml
+  colors: !include esphome-modular-lvgl-buttons/common/theme/color.yaml
+  glyphs: !include esphome-modular-lvgl-buttons/common/theme/mdi_glyph_substitutions.yaml
   backlight: !include esphome-modular-lvgl-buttons/common/backlight_time.yaml
 
   # Hardware description file
@@ -68,10 +72,8 @@ packages:
     file: esphome-modular-lvgl-buttons/hardware/sunton-esp32-2432s028.yaml
     vars:
       rotation: "0"  # set screen rotation 0, 90, 180, 270
-  # Basic boot screen with ESPHome logo and device diagnostic info
-  loading_screen: !include esphome-modular-lvgl-buttons/pages/loading.yaml
-  # info screen - WiFi login, IP address, MAC address etc
-  info_screen: !include esphome-modular-lvgl-buttons/pages/info.yaml
+
+
 
   # This section will add buttons and page to your screen using the ESPHome package system.
   # Each package has all the code required for the button or page (LVGL, sensors, etc)
@@ -94,7 +96,6 @@ packages:
       row: 0
       column: 1
       text: 00:00
-      click_page: info_screen
 
 # This is the main LVGL section. We start with a simple 4x4 grid.
 lvgl:
@@ -135,3 +136,18 @@ font:
       $mdi_track_light,  # mdi-track-light - track lighting
       $mdi_white_balance_sunny,  # mdi-white-balance-sunny - color temp/sun icon
     ]
+
+  - file: "esphome-modular-lvgl-buttons/assets/fonts/Nunito-SemiBold.ttf"
+    id: nunito_20
+    size: 20
+    bpp: 8
+
+  - file: "esphome-modular-lvgl-buttons/assets/fonts/Nunito-SemiBold.ttf"
+    id: nunito_18
+    size: 18
+    bpp: 8
+
+  - file: "esphome-modular-lvgl-buttons/assets/fonts/Nunito-SemiBold.ttf"
+    id: nunito_12
+    size: 12
+    bpp: 8

@@ -64,6 +64,7 @@ light:
     icon: mdi:lightbulb-on
     id: display_backlight
     restore_mode: ALWAYS_ON
+  
   - platform: rgb
     id: rgb_led
     name: RGB LED
@@ -96,23 +97,11 @@ touchscreen:
       x_max: 3860
       y_min: 340
       y_max: 3860
-    transform:
-      mirror_x: false  # original used to be true
-      mirror_y: true  # added this line
-      swap_xy: false  # added this line
-# on_touch:
-#   - lambda: |-
-#         ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
-#           touch.x,
-#           touch.y,
-#           touch.x_raw,
-#           touch.y_raw
-#         );
 
 display:
   - id: my_display
-    platform: ili9xxx
-    model: TFT 2.4R  # original used to be LI9341
+    platform: mipi_spi
+    model: ILI9341
     spi_id: tft
     cs_pin:
       number: 15
@@ -120,13 +109,12 @@ display:
     dc_pin:
       number: 2
       ignore_strapping_warning: true
-    invert_colors: true   # original used to be false
-    color_palette: 8BIT   # added this line
     update_interval: never
     auto_clear_enabled: false
-    transform:            # added this line
+    transform:
       swap_xy: true
       mirror_x: false
-    dimensions:           # added this line
-      height: 320
-      width: 240
+      mirror_y: false
+    dimensions:
+      height: 240
+      width: 320
