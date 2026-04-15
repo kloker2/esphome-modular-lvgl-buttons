@@ -38,3 +38,13 @@ lvgl:
                         lvgl.page.show: ${click_page | default("main_page")}
 
 
+script:
+  - id: !extend time_update
+    then:
+      - lvgl.label.update:
+          id: time_label
+          text: !lambda |-
+            auto now = id(system_time).now();
+            int hour = now.hour % 12;
+            if (hour == 0) hour = 12;
+            return str_sprintf("%d:%02d %s", hour, now.minute, now.hour < 12 ? "am" : "pm");
