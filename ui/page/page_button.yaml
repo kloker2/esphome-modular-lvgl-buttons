@@ -41,4 +41,4 @@ lvgl:
                       text: ${text}
                 on_short_click:
                     then:
-                      lvgl.page.show: ${click_page | default(main_page)}
+                      lvgl.page.show: ${click_page | default("main_page")}
