@@ -65,6 +65,17 @@ display:
   - platform: mipi_spi
     id: my_display
     model: ST7796
+    spi_id: lcd_spi
+    cs_pin:
+      pca9554: p_c_a
+      number: 2
+    dc_pin: 3
+    reset_pin:
+      pca9554: p_c_a
+      number: 1
+    #rotation: 90
+    spi_mode: 1
+    
     dimensions:
       width: 320
       height: 480
@@ -83,7 +94,7 @@ i2c:
 
 # TCA9554PWR GPIO Expander
 pca9554:
-  - id: tca9554_gpio_expander
+  - id: p_c_a
     address: 0x20
     i2c_id: touch_i2c
 
