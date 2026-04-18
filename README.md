@@ -305,8 +305,8 @@ Then `esphome run your-config.yaml` — a window opens simulating the display. S
 | Model | Size | Resolution |
 |---|---|---|
 | `waveshare-esp32-s3-touch-lcd-2.8c` | 2.8" | 320×240 |
-| `waveshare-esp32-s3-touch-lcd-3.5` | 3.5" | 320 × 480 |
-| `waveshare-esp32-s3-touch-lcd-3.5B` | 3.5" | 320 × 480 |
+| [`waveshare-esp32-s3-touch-lcd-3.5`](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-3.5) | 3.5" | 320 × 480 |
+| [`waveshare-esp32-s3-touch-lcd-3.5B`](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-3.5B) | 3.5" | 320 × 480 |
 | `waveshare-esp32-s3-touch-lcd-4-v4` | 4.0" | 480×480 |
 | `waveshare-esp32-s3-touch-lcd-4.3` | 4.3" | 800×480 |
 | `waveshare-esp32-s3-touch-lcd-7` | 7.0" | 800×480 |
@@ -316,6 +316,12 @@ Then `esphome run your-config.yaml` — a window opens simulating the display. S
 | `waveshare-esp32-p4-wifi6-touch-lcd-7` | 7.0" | 1024×600 |
 | `waveshare-esp32-p4-wifi6-touch-lcd-7b` | 7.0" | 1024×600 |
 | `waveshare-esp32-p4-wifi6-touch-lcd-10.1` | 10.1" | 800×1280 |
+
+### Elecrow
+
+| Model | Size | Resolution |
+|---|---|---|
+| [`CrowPanel ESP32 HMI 7.0-inch Display`](https://www.elecrow.com/wiki/esp32-display-702727-intelligent-touch-screen-wi-fi26ble-800480-hmi-display.html) | 7.0" | 800*480 |
 
 ### Guition
 
