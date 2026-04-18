@@ -306,6 +306,7 @@ Then `esphome run your-config.yaml` — a window opens simulating the display. S
 |---|---|---|
 | `waveshare-esp32-s3-touch-lcd-2.8c` | 2.8" | 320×240 |
 | `waveshare-esp32-s3-touch-lcd-3.5` | 3.5" | 320 × 480 |
+| `waveshare-esp32-s3-touch-lcd-3.5B` | 3.5" | 320 × 480 |
 | `waveshare-esp32-s3-touch-lcd-4-v4` | 4.0" | 480×480 |
 | `waveshare-esp32-s3-touch-lcd-4.3` | 4.3" | 800×480 |
 | `waveshare-esp32-s3-touch-lcd-7` | 7.0" | 800×480 |
